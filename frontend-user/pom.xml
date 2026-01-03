@@ -61,9 +61,17 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
+            <!-- Spring Boot управлява версията, но може да зададеш изрично, напр. 42.7.3 -->
+        </dependency>
+
+        <!-- Flyway за Database Migrations (ВЕРСИЯТА Е КЛЮЧОВА) -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>11.20.0</version> <!-- Поправена версия -->
         </dependency>
 
         <!-- Jakarta Persistence API explicit -->
