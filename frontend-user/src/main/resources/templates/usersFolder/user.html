@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>User</title>
+    <!--    <link rel="stylesheet" th:href="@{/css/user.css}">-->
+    <link rel="stylesheet" href="/css/user.css">
+
+</head>
+<body>
+<h1>User details:</h1>
+<div class="user-info">
+    <p> ID: <strong th:text="${user.id}"></strong></p>
+    <p> Name: <strong th:text="${user.name}"></strong></p>
+    <p> Age: <strong th:text="${user.age}"></strong></p>
+</div>
+
+<br>
+<form th:action="@{/users/{id}/documents(id=${user.id})}" method="get">
+    <button type="submit" class="button" th:text="#{button.documents}">
+        Documents
+    </button>
+</form>
+</body>
+</html>
+
+

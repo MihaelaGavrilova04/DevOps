@@ -1,0 +1,55 @@
+:root{
+    --color-background: rgb(255, 240, 245);
+    --color-text: black;
+    --color-button: rgb(255, 133, 162);
+    --color-button-hover: rgb(255, 105, 180);
+    --font-size-text: 20px;
+    --font-family: "Arial", sans-serif;
+    --font-weight: bold;
+    --text-align: center;
+
+    --opacity-clicked: 4px;
+    --padding-button: 5px;
+}
+
+body{
+    font-family: var(--font-family);
+    background-color: var(--color-background);
+    text-align: center;
+    margin: 20px;
+}
+
+.user-info{
+    color: var(--color-text);
+    background-color:var(--color-background);
+    font-size: var(--font-size-text);
+    font-weight: var(--font-weight);
+    text-align: var(--text-align);
+}
+
+.greeting{
+    color: var(--color-text);
+    background-color:var(--color-background);
+    font-size: var(--font-size-text);
+    font-weight: var(--font-weight);
+    text-align: var(--text-align);
+}
+
+ .button {
+           display: inline-block;
+           margin: 5px;
+           padding: 8px 15px;
+           background-color: var(--color-button);
+           color: white;
+           border: none;
+           border-radius: 4px;
+           cursor: pointer;
+           text-decoration: none;
+           font-family: var(--font-family);
+           min-width: 120px;
+       }
+
+  .button:hover {
+      background-color: var(--color-button-hover);
+      cursor: pointer
+  }

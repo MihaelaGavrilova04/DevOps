@@ -1,0 +1,54 @@
+name: Build documents-microservice docker image
+
+on:
+  pull_request:
+    branches:
+      main
+    paths:
+      - 'documents/src/**'
+      - 'documents/pom.xml'
+      - 'documents/Dockerfile'
+  push:
+    branches: main
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      
+      - name: Make maven executable
+        working-directory: ./documents
+        run: chmod +x mvnw
+
+      - name: Build with maven
+        working-directory: ./documents
+        run: ./mvnw clean package -DskipTests
+
+      - name: Build Docker Image
+        working-directory: ./documents
+        run: docker build -t ghcr.io/mihaelagavrilova04/document-service:latest .
+
+      - name: Log in to GitHub Container Registy
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: mihaelagavrilova04
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image
+        run: docker push ghcr.io/mihaelagavrilova04/document-service:latest
+   

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Your documents</title>
+    <link rel="stylesheet" th:href="@{/css/list.css}" />
+</head>
+<body>
+
+<div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+
+<div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+
+
+<h1>
+    <strong th:text="'Documents for user' + ${userId}">Documents for you</strong>
+</h1>
+
+<!--all the info is from DocumentResponseDTO in client.clientDTO-->
+<table>
+    <thead>
+    <tr>
+        <th>Document id</th>
+        <th>User Id</th>
+        <th>Original Filename</th>
+        <th>File size</th>
+        <th> Content Type</th>
+        <th>Upload Time</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="doc : ${allDocuments}">
+        <td th:text="${doc.id}"></td>
+        <td th:text="${doc.userId}"></td>
+        <td th:text="${doc.originalFilename}"></td>
+        <td th:text="${doc.fileSize}"></td>
+        <td th:text="${doc.contentType}"></td>
+        <!--        #dates.format е вградено в thymeleaf -->
+        <td th:text="${#temporals.format(doc.uploadTime, 'yyyy-MM-dd HH:mm')}"></td>
+
+        <td>
+            <!--sends request to Web Document Controller which uses the document client to talk to the document service-->
+            <form th:action="@{'/users/' + ${userId} + '/documents/download/' + ${doc.id}}" method="get">
+                <button type="submit" class="button"> Download file</button>
+            </form>
+
+            <form th:action="@{'/users/' + ${userId} + '/documents/delete/' + ${doc.id}}" method="post">
+                <button type="submit" class="button">Delete file</button>
+            </form>
+
+        </td>
+    </tr>
+    </tbody>
+
+</table>
+
+<br>
+<br>
+<br>
+<br>
+
+<!--upload не е отделна форма за всеки документ, а на края на страницата и е 1, няма да е във for-a-->
+<form th:action="@{'/users/' + ${userId} + '/documents/upload'}" method="post" enctype="multipart/form-data">
+<!--    Бутонът "Choose File" се генерира автоматично от браузъра от този HTML елемент:-->
+    <input type="file" name="file" class="button"/>
+    <button type="submit" class="button">Upload new file</button>
+</form>
+
+</body>
+</html>

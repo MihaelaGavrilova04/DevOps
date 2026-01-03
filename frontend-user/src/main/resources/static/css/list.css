@@ -1,0 +1,42 @@
+ :root {
+            --color-background: rgb(255, 240, 245);
+            --color-table-header: rgb(255, 182, 193);
+            --color-row-even: rgb(255, 228, 232);
+            --color-hover: rgb(255, 210, 220);
+            --color-text: rgb(50, 50, 50);
+            --color-button: rgb(255, 133, 162);
+            --color-button-hover: rgb(255, 105, 180);
+            --font-family: Arial;
+        }
+
+  body {
+      font-family: var(--font-family);
+      background-color: var(--color-background);
+      color: var(--color-text);
+      text-align: center;
+      margin: 20px;
+  }
+
+  table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 60%;
+  }
+  .button {
+           display: inline-block;
+           margin: 5px;
+           padding: 8px 15px;
+           background-color: var(--color-button);
+           color: white;
+           border: none;
+           border-radius: 4px;
+           cursor: pointer;
+           text-decoration: none;
+           font-family: var(--font-family);
+           min-width: 120px;
+       }
+
+  .button:hover {
+      background-color: var(--color-button-hover);
+      cursor: pointer
+  }

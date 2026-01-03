@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>All users:</title>
+    <link rel="stylesheet" th:href="@{/css/users.css}">
+</head>
+
+<body>
+<h2>All Users</h2>
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Age</th>
+    </tr>
+
+    <tr th:each="usr : ${users}">
+        <td th:text="${usr.id}"></td>
+        <td class="username-column">  <!-- Добави клас и тук -->
+            <a th:href="@{/users/{id}(id=${usr.id})}"
+               th:text="${usr.name}"
+               class="user-link">
+            </a>
+        </td>
+        <td th:text="${usr.age}"></td>
+    </tr>
+</table>
+
+<br>
+<a th:href="@{/}">Back to Home</a>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Website</title>
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+</head>
+<body>
+<p class="greeting" th:text="${#messages.msg(timeOfDayGreeting)}"></p>
+<br></br>
+<br></br>
+
+<div>
+    <h1><strong>Document Management System</strong></h1>
+    <p>This Spring Boot application with MinIO integration</p>
+</div>
+
+<button class="button"
+        th:text="#{button.users}"
+        th:onclick="|window.location='@{/users}'|">
+</button>
+</body>
+</html>
