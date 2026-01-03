@@ -4,7 +4,6 @@ import com.frontend.user.client.DocumentClient;
 import com.frontend.user.client.clientDTO.DocumentResponseDTO;
 import com.frontend.user.validator.FileValidator;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,23 +25,23 @@ public class UserDocumentController {
     private final DocumentClient client;
     private final FileValidator fileValidator;
 
-    public UserDocumentController(DocumentClient client, FileValidator fileValidator){
+    public UserDocumentController(DocumentClient client, FileValidator fileValidator) {
         this.client = client;
         this.fileValidator = fileValidator;
     }
 
     @GetMapping
-    public ResponseEntity<List<DocumentResponseDTO>> getAllDocuments(@PathVariable Long userId){
+    public ResponseEntity<List<DocumentResponseDTO>> getAllDocuments(@PathVariable Long userId) {
         return ResponseEntity.ok(client.getAllDocuments(userId));
     }
 
-//    ResponseEntity<DocumentResponseDTO> => ResponseEntity<?> because we will return a String when an error occurs
+    //    ResponseEntity<DocumentResponseDTO> => ResponseEntity<?> because we will return a String when an error occurs
     @PostMapping("/upload")
-    public ResponseEntity<?> upload(@PathVariable Long userId, @RequestParam("file") MultipartFile file){
-        try{
+    public ResponseEntity<?> upload(@PathVariable Long userId, @RequestParam("file") MultipartFile file) {
+        try {
             fileValidator.validateFileContent(file);
             return ResponseEntity.ok(client.upload(userId, file));
-        }catch(Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -52,30 +51,28 @@ public class UserDocumentController {
 
     @GetMapping("/download/{documentId}")
     public ResponseEntity<byte[]> download(@PathVariable Long userId, @PathVariable Long documentId) {
-        try{
+        try {
             byte[] content = client.download(userId, documentId);
             DocumentResponseDTO found = client.findById(userId, documentId);
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = \"" + found.originalFilename() + "\"")
-                    .contentType(MediaType.parseMediaType(found.contentType())).body(content);
-        }catch (Exception e){
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = \"" + found.originalFilename() + "\"").contentType(MediaType.parseMediaType(found.contentType())).body(content);
+        } catch (Exception e) {
             return ResponseEntity.notFound().build(); // 404
         }
     }
 
 
     @DeleteMapping("/delete/{documentId}")
-    public ResponseEntity<String> delete(@PathVariable Long userId, @PathVariable Long documentId){
+    public ResponseEntity<String> delete(@PathVariable Long userId, @PathVariable Long documentId) {
         return ResponseEntity.ok(client.delete(userId, documentId));
     }
 
     @GetMapping("/find/{documentId}")
-    public ResponseEntity<DocumentResponseDTO> findById(@PathVariable Long userId, @PathVariable Long documentId){
-        try{
+    public ResponseEntity<DocumentResponseDTO> findById(@PathVariable Long userId, @PathVariable Long documentId) {
+        try {
             DocumentResponseDTO document = client.findById(userId, documentId);
             return ResponseEntity.ok(document);
-        }catch(Exception e){
+        } catch (Exception e) {
             return ResponseEntity.notFound().build(); // 404
         }
     }

@@ -24,12 +24,12 @@ public class ParserCSV implements Parser {
     @PostConstruct
     void populate() {
 //        за да работи като пакетирам в JAR:
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("users.csv").getInputStream()))){
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("users.csv").getInputStream()))) {
             String line;
-            while((line=reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 String[] arr = line.split(",");
 
-                if(arr.length != 3){
+                if (arr.length != 3) {
                     continue;
                 }
 
@@ -40,9 +40,9 @@ public class ParserCSV implements Parser {
                 user.setPrivatePersonalInfo(arr[2]);
                 userRepository.save(user);
             }
-        }catch(FileNotFoundException  e1){
+        } catch (FileNotFoundException e1) {
             throw new UncheckedIOException(e1);
-        }catch(IOException e2){
+        } catch (IOException e2) {
             throw new UncheckedIOException(e2);
         }
     }

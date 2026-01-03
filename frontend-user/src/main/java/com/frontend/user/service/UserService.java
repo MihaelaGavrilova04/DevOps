@@ -9,23 +9,22 @@ import java.util.List;
 
 @Service
 public class UserService {
-    private UserRepository repository;
+    private final UserRepository repository;
 
-    public UserService(UserRepository repository){
+    public UserService(UserRepository repository) {
         this.repository = repository;
     }
 
     public UserDTO findById(Long id) {
-        User found = repository.findById(id).orElseThrow(()-> new RuntimeException("User not found!"));
-        return  toDTO(found);
+        User found = repository.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
+        return toDTO(found);
     }
 
-    public List<UserDTO> getAll(){
-        return repository.findAll().stream()
-                .map(this::toDTO).toList();
+    public List<UserDTO> getAll() {
+        return repository.findAll().stream().map(this::toDTO).toList();
     }
 
-    private UserDTO toDTO(User user){
+    private UserDTO toDTO(User user) {
         return new UserDTO(user.getId(), user.getName(), user.getAge());
     }
 }

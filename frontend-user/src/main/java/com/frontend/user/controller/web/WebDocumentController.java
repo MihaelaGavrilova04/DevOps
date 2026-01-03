@@ -24,19 +24,19 @@ public class WebDocumentController {
     private final DocumentClient client;
     private final FileValidator fileValidator;
 
-    public WebDocumentController(DocumentClient client, FileValidator fileValidator){
+    public WebDocumentController(DocumentClient client, FileValidator fileValidator) {
         this.client = client;
         this.fileValidator = fileValidator;
     }
 
     @GetMapping
-    public String getAllDocuments(@PathVariable Long userId, Model model){
+    public String getAllDocuments(@PathVariable Long userId, Model model) {
         try {
             List<DocumentResponseDTO> allDocuments = client.getAllDocuments(userId);
             model.addAttribute("allDocuments", allDocuments);
             model.addAttribute("userId", userId);
 
-        }catch(Exception e){
+        } catch (Exception e) {
             model.addAttribute("error", "Failed to load documents:");
         }
 
@@ -44,13 +44,13 @@ public class WebDocumentController {
     }
 
     @PostMapping("/upload")
-    public String upload(@PathVariable Long userId, @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes){
+    public String upload(@PathVariable Long userId, @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
 
-        try{
+        try {
             fileValidator.validateFileContent(file);
             DocumentResponseDTO uploaded = client.upload(userId, file);
             redirectAttributes.addFlashAttribute("success", "File uploaded successfully!");
-        }catch(Exception e){
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
@@ -61,25 +61,22 @@ public class WebDocumentController {
 
 
     @GetMapping("/download/{documentId}")
-    public ResponseEntity<byte[]> download(@PathVariable Long userId, @PathVariable Long documentId){
+    public ResponseEntity<byte[]> download(@PathVariable Long userId, @PathVariable Long documentId) {
         byte[] content = client.download(userId, documentId);
         DocumentResponseDTO doc = client.findById(userId, documentId);
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + doc.originalFilename() + "\"")
-                .contentType(MediaType.parseMediaType(doc.contentType()))
-                .body(content);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + doc.originalFilename() + "\"").contentType(MediaType.parseMediaType(doc.contentType())).body(content);
     }
 
-//    Браузърите имат ограничена поддръжка
+    //    Браузърите имат ограничена поддръжка
 //    Докато модерните JavaScript applications (React, Angular) могат да използват DELETE, PUT и т.н., обикновените HTML форми в браузъри не могат
     @PostMapping("/delete/{documentId}")
-    public String delete(@PathVariable Long userId, @PathVariable Long documentId, RedirectAttributes redirectAttributes){
-        try{
+    public String delete(@PathVariable Long userId, @PathVariable Long documentId, RedirectAttributes redirectAttributes) {
+        try {
             client.delete(userId, documentId);
-            redirectAttributes.addFlashAttribute("success","File deleted successfully!");
-        }catch(Exception e){
-            redirectAttributes.addFlashAttribute("error","Failed to delete file!");
+            redirectAttributes.addFlashAttribute("success", "File deleted successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to delete file!");
         }
         return "redirect:/users/" + userId + "/documents";
     }

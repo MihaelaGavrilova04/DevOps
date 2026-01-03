@@ -22,12 +22,12 @@ public class WebController {
 
         LocalTime now = LocalTime.now();
         String greeting;
-        if(now.isBefore(LocalTime.NOON)){
-            greeting="greeting.morning";
-        }else if(now.isBefore(LocalTime.of(18,0))){
-            greeting="greeting.afternoon";
-        }else{
-            greeting="greeting.evening";
+        if (now.isBefore(LocalTime.NOON)) {
+            greeting = "greeting.morning";
+        } else if (now.isBefore(LocalTime.of(18, 0))) {
+            greeting = "greeting.afternoon";
+        } else {
+            greeting = "greeting.evening";
         }
         model.addAttribute("timeOfDayGreeting", greeting);
         return "usersFolder/index";
@@ -42,7 +42,7 @@ public class WebController {
     @GetMapping("/users/{id}")
     public String getUserByID(Model model, @PathVariable Long id) {
         UserDTO user = userService.findById(id);
-        if(user == null){
+        if (user == null) {
             return "redirect:/users";
         }
 
