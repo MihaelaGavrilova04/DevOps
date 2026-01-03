@@ -31,11 +31,11 @@ jobs:
           java-version: '21'
       
       - name: Make maven executable
-        working-directory: ./documents
+        working-directory: ./documents-service
         run: chmod +x mvnw
 
       - name: Build with maven
-        working-directory: ./documents
+        working-directory: ./documents-service
         run: ./mvnw clean package 
 
       - name: Build Docker Image
