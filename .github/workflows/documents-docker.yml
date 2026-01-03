@@ -5,9 +5,9 @@ on:
     branches:
       main
     paths:
-      - 'documents/src/**'
-      - 'documents/pom.xml'
-      - 'documents/Dockerfile'
+      - 'documents-service/src/**'
+      - 'documents-service/pom.xml'
+      - 'documents-service/Dockerfile'
   push:
     branches: main
 
@@ -36,10 +36,10 @@ jobs:
 
       - name: Build with maven
         working-directory: ./documents
-        run: ./mvnw clean package -DskipTests
+        run: ./mvnw clean package 
 
       - name: Build Docker Image
-        working-directory: ./documents
+        working-directory: ./documents-service
         run: docker build -t ghcr.io/mihaelagavrilova04/document-service:latest .
 
       - name: Log in to GitHub Container Registy
