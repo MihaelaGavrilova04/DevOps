@@ -1,13 +1,13 @@
-name: Build Project Docker Image
+name: Build frontend-user microservice Docker Image
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'project/src/**'
-      - 'project/pom.xml'
-      - 'project/Dockerfile'
+      - 'frontend-user/src/**'
+      - 'frontend-user/pom.xml'
+      - 'frontend-user/Dockerfile'
       
   workflow_dispatch:
 
@@ -29,15 +29,15 @@ jobs:
           java-version: '21'
 
       - name: Make mvnw executable
-        working-directory: ./project
+        working-directory: ./frontend-user
         run: chmod +x mvnw
 
       - name: Build with Maven
-        working-directory: ./project
-        run: ./mvnw clean package -DskipTests
+        working-directory: ./frontend-user
+        run: ./mvnw clean package
 
       - name: Build Docker image
-        working-directory: ./project
+        working-directory: ./frontend-user
         run: docker build -t ghcr.io/mihaelagavrilova04/project-service:latest .
 
       - name: Log in to GitHub Container Registry
