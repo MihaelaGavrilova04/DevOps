@@ -13,6 +13,9 @@ spec:
       labels:
         app: frontend-user
     spec:
+      # ✅ ПРАВИЛНО: imagePullSecrets е ДИРЕКТНО в spec
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: frontend-user
           image: ghcr.io/mihaelagavrilova04/frontend-user:latest
