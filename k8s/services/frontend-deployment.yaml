@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: file-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-user
+  template:
+    metadata:
+      labels:
+        app: frontend-user
+    spec:
+      containers:
+        - name: frontend-user
+          image: ghcr.io/mihaelagavrilova04/frontend-user:latest
+          ports:
+            - containerPort: 8181
+          env:
+            - name: DB_URL
+              value: "jdbc:postgresql://postgres-user-service:5432/userdb"
+            - name: DB_USERNAME
+              value: "postgres"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-user-secret
+                  key: password
+            - name: DOCUMENTS_SERVICE_URL
+              value: "http://documents-service:8182"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: file-app
+spec:
+  selector:
+    app: frontend-user
+  ports:
+    - port: 80
+      targetPort: 8181
+  type: LoadBalancer

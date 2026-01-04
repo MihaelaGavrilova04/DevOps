@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: documents-deployment
+  namespace: file-app
+  labels:
+    app: documents-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: documents-service
+  template:
+    metadata:
+      labels:
+        app: documents-service
+    spec:
+      containers:
+        - name: documents-service
+          image: ghcr.io/mihaelagavrilova04/documents-service:latest
+          ports:
+            - containerPort: 8182
+          env:
+            - name: DB_URL
+              value: "jdbc:postgresql://postgres-document-service:5432/documentdb"
+            - name: DB_USERNAME
+              value: "postgres"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-document-secret
+                  key: password
+            - name: MINIO_ENDPOINT
+              value: "http://minio-service:9000"
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: accessKey
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: secretKey
+            - name: minio.bucketName
+              value: "user-documents"
+          readinessProbe:
+            httpGet:
+              path: /api/users/1/documents/health
+              port: 8182
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:  # Добави и livenessProbe
+            httpGet:
+              path: /api/users/1/documents/health
+              port: 8182
+            initialDelaySeconds: 90
+            periodSeconds: 30
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: documents-service
+  namespace: file-app
+spec:
+  selector:
+    app: documents-service
+  ports:
+    - port: 8182
+      targetPort: 8182
+  type: ClusterIP
