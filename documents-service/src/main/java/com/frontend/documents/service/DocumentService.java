@@ -30,7 +30,7 @@ public class DocumentService {
         this.repository = repository;
         this.minioClient = minioClient;
     }
-
+    
     public void testMinioConnection() {
         try {
             // Просто провери дали може да изброи buckets
