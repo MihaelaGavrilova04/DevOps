@@ -8,18 +8,19 @@ on:
     paths:
       - 'frontend-user/**'
       - 'documents-service/**'
-      - '.github/workflows/full-cicd.yml' 
+      - '.github/workflows/full-cicd.yml'
   pull_request:
     branches: [ "main" ]
     paths:
       - 'frontend-user/**'
       - 'documents-service/**'
-      - '.github/workflows/full-cicd.yml' 
+      - '.github/workflows/full-cicd.yml'
 
 env:
   REGISTRY: ghcr.io
-  FRONTEND_IMAGE_NAME: ${{ github.repository }}-frontend
-  DOCUMENTS_IMAGE_NAME: ${{ github.repository }}-documents
+  USERNAME: mihaelagavrilova04
+  FRONTEND_IMAGE_NAME: frontend-user
+  DOCUMENTS_IMAGE_NAME: documents-service
 
 jobs:
   build-and-push:
@@ -47,7 +48,7 @@ jobs:
         run: ./mvnw clean package
 
       - name: Build Frontend Docker Image
-        run: docker build -t ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }} -f frontend-user/Dockerfile frontend-user/
+        run: docker build -t ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }} -f frontend-user/Dockerfile frontend-user/
 
       - name: Setup Documents Service Build
         working-directory: ./documents-service
@@ -58,7 +59,7 @@ jobs:
         run: ./mvnw clean package
 
       - name: Build Documents Docker Image
-        run: docker build -t ${{ env.REGISTRY }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }} -f documents-service/Dockerfile documents-service/
+        run: docker build -t ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }} -f documents-service/Dockerfile documents-service/
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
@@ -69,10 +70,9 @@ jobs:
 
       - name: Push Docker Images
         run: |
-          docker push ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}
-          docker push ${{ env.REGISTRY }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }}
 
-  # DEPLOY TO k8s
   deploy-to-k8s:
     needs: build-and-push  
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
@@ -102,15 +102,14 @@ jobs:
 
       - name: Update Kubernetes Deployments
         run: |
-          echo "Updating frontend-deployment with image: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}"
-          
+          echo "Updating frontend-deployment"
           kubectl get deployment frontend-deployment -n file-app -o yaml | \
-            sed "s|image: .*|image: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}|" | \
+            sed "s|image: .*|image: ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}|" | \
             kubectl apply -f -
           
-          echo "Updating documents-deployment with image: ${{ env.REGISTRY }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }}"
+          echo "Updating documents-deployment"
           kubectl get deployment documents-deployment -n file-app -o yaml | \
-            sed "s|image: .*|image: ${{ env.REGISTRY }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }}|" | \
+            sed "s|image: .*|image: ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }}|" | \
             kubectl apply -f -
           
           echo "Waiting for deployments to complete..."
@@ -124,10 +123,10 @@ jobs:
           echo "Deployment Status:"
           kubectl get deployments -n file-app
           echo ""
-          echo "Аpplication is now live at:"
+          echo "Application is now live at:"
           echo "   Frontend: http://localhost/"
           echo "   MinIO Console: http://localhost:9001"
           echo ""
           echo "Images deployed:"
-          echo "   Frontend: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}"
-          echo "   Documents: ${{ env.REGISTRY }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }}"
+          echo "   Frontend: ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}"
+          echo "   Documents: ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }}"
