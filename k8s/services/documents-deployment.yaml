@@ -15,6 +15,9 @@ spec:
       labels:
         app: documents-service
     spec:
+      # ✅ ПРАВИЛНО: imagePullSecrets е ДИРЕКТНО в spec
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: documents-service
           image: ghcr.io/mihaelagavrilova04/documents-service:latest
@@ -51,7 +54,7 @@ spec:
             initialDelaySeconds: 60
             periodSeconds: 10
             failureThreshold: 3
-          livenessProbe:  # Добави и livenessProbe
+          livenessProbe:
             httpGet:
               path: /api/users/1/documents/health
               port: 8182
