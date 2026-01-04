@@ -12,9 +12,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-
 @FeignClient(name = "document-client", url = "${DOCUMENTS_SERVICE_URL}/api")
 public interface DocumentClient {
+
+    @GetMapping("/users/{userId}/documents/health")  // ДОБАВИ ТОЗИ МЕТОД!
+    String health(@PathVariable Long userId);
 
     @GetMapping("/users/{userId}/documents")
     List<DocumentResponseDTO> getAllDocuments(@PathVariable Long userId);
@@ -24,7 +26,6 @@ public interface DocumentClient {
 
     @GetMapping("/users/{userId}/documents/download/{documentId}")
     byte[] download(@PathVariable Long userId, @PathVariable Long documentId);
-
 
     @DeleteMapping("/users/{userId}/documents/delete/{documentId}")
     String delete(@PathVariable Long userId, @PathVariable Long documentId);
