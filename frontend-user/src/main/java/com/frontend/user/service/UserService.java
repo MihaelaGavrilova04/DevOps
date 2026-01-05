@@ -24,7 +24,7 @@ public class UserService {
         return repository.findAll().stream().map(this::toDTO).toList();
     }
 
-    private UserDTO toDTO(User user) {
+    UserDTO toDTO(User user) {
         return new UserDTO(user.getId(), user.getName(), user.getAge());
     }
 }
