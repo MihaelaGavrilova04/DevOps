@@ -15,7 +15,6 @@ spec:
       labels:
         app: documents-service
     spec:
-      # ✅ ПРАВИЛНО: imagePullSecrets е ДИРЕКТНО в spec
       imagePullSecrets:
         - name: ghcr-secret
       containers:
