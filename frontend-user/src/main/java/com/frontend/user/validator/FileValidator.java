@@ -5,10 +5,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
-
 @Component
 public class FileValidator {
     private static final int MB_IN_BYTES = 1024 * 1024;
+    private static final int MAX_MB_POSSIBLE = 10;
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "doc", "docx", "txt", "jpg", "png", "jpeg");
 
     public void validateFileContent(MultipartFile file) {
@@ -21,7 +21,7 @@ public class FileValidator {
             throw new IllegalArgumentException("File passed is empty!");
         }
 
-        if (file.getSize() > 10 * MB_IN_BYTES) {
+        if (file.getSize() > MAX_MB_POSSIBLE * MB_IN_BYTES) {
             throw new IllegalArgumentException("File passed is too large, must be max 10 MB!");
         }
 

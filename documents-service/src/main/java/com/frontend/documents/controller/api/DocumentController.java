@@ -39,7 +39,8 @@ public class DocumentController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<DocumentResponseDTO> upload(@PathVariable Long userId, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<DocumentResponseDTO> upload(@PathVariable Long userId,
+                                                      @RequestParam("file") MultipartFile file) {
 
         DocumentResponseDTO saved = service.uploadDocument(userId, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
@@ -50,9 +51,10 @@ public class DocumentController {
 
         DocumentDownloadDTO download = service.downloadDocument(userId, documentId);
 
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + download.getOriginalName() + "\"").contentType(MediaType.parseMediaType(download.getContentType())).body(download.getFileContent());
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + download.getOriginalName() + "\"")
+                .contentType(MediaType.parseMediaType(download.getContentType())).body(download.getFileContent());
     }
-
 
     @DeleteMapping("/delete/{documentId}")
     public ResponseEntity<String> delete(@PathVariable Long userId, @PathVariable Long documentId) {

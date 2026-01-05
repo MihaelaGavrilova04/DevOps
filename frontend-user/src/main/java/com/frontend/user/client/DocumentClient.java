@@ -1,6 +1,6 @@
 package com.frontend.user.client;
 
-import com.frontend.user.client.clientDTO.DocumentResponseDTO;
+import com.frontend.user.client.client.dto.DocumentResponseDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;

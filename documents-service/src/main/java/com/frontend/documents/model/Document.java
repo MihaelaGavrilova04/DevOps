@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(name="documents")
-public class Document{
+@Table(name = "documents")
+public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,7 +27,7 @@ public class Document{
     private LocalDateTime uploadTime;
 
     @PrePersist
-    protected void beforeSave(){ // по конвенция се прави protected
+    protected void beforeSave() { // по конвенция се прави protected
         uploadTime = LocalDateTime.now();
     }
 }

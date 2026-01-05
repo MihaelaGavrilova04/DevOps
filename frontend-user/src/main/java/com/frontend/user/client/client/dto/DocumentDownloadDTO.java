@@ -1,4 +1,4 @@
-package com.frontend.user.client.clientDTO;
+package com.frontend.user.client.client.dto;
 
 import lombok.Data;
 

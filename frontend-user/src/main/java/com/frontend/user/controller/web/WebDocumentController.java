@@ -1,7 +1,7 @@
 package com.frontend.user.controller.web;
 
 import com.frontend.user.client.DocumentClient;
-import com.frontend.user.client.clientDTO.DocumentResponseDTO;
+import com.frontend.user.client.client.dto.DocumentResponseDTO;
 import com.frontend.user.validator.FileValidator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -44,7 +44,8 @@ public class WebDocumentController {
     }
 
     @PostMapping("/upload")
-    public String upload(@PathVariable Long userId, @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+    public String upload(@PathVariable Long userId,
+                         @RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
 
         try {
             fileValidator.validateFileContent(file);
@@ -59,19 +60,19 @@ public class WebDocumentController {
         return "redirect:/users/" + userId + "/documents"; // връщаме се към списъка с документи
     }
 
-
     @GetMapping("/download/{documentId}")
     public ResponseEntity<byte[]> download(@PathVariable Long userId, @PathVariable Long documentId) {
         byte[] content = client.download(userId, documentId);
         DocumentResponseDTO doc = client.findById(userId, documentId);
 
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + doc.originalFilename() + "\"").contentType(MediaType.parseMediaType(doc.contentType())).body(content);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + doc.originalFilename() + "\"")
+                .contentType(MediaType.parseMediaType(doc.contentType())).body(content);
     }
 
-    //    Браузърите имат ограничена поддръжка
-//    Докато модерните JavaScript applications (React, Angular) могат да използват DELETE, PUT и т.н., обикновените HTML форми в браузъри не могат
     @PostMapping("/delete/{documentId}")
-    public String delete(@PathVariable Long userId, @PathVariable Long documentId, RedirectAttributes redirectAttributes) {
+    public String delete(@PathVariable Long userId, @PathVariable Long documentId,
+                         RedirectAttributes redirectAttributes) {
         try {
             client.delete(userId, documentId);
             redirectAttributes.addFlashAttribute("success", "File deleted successfully!");

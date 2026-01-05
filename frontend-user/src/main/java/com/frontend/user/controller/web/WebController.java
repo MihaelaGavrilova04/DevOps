@@ -12,6 +12,8 @@ import java.time.LocalTime;
 @Controller
 public class WebController {
     private final UserService userService;
+    private static final int EVENING_TIME_HOUR = 18;
+    private static final int EVENING_TIME_MINUTES = 0;
 
     public WebController(UserService userService) {
         this.userService = userService;
@@ -24,7 +26,7 @@ public class WebController {
         String greeting;
         if (now.isBefore(LocalTime.NOON)) {
             greeting = "greeting.morning";
-        } else if (now.isBefore(LocalTime.of(18, 0))) {
+        } else if (now.isBefore(LocalTime.of(EVENING_TIME_HOUR, EVENING_TIME_MINUTES))) {
             greeting = "greeting.afternoon";
         } else {
             greeting = "greeting.evening";
