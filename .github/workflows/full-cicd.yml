@@ -73,13 +73,13 @@ jobs:
         run: |
           docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}
           docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }}
-  
+          
   sonarqube:
-  name: SonarQube Analysis
-  needs: build-and-push
-  runs-on: ubuntu-latest
+    name: SonarQube Analysis
+    needs: build-and-push
+    runs-on: ubuntu-latest
   
-  steps:
+    steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
@@ -118,7 +118,7 @@ jobs:
         mvn -B verify sonar:sonar \
           -Dsonar.projectKey=mihaelagavrilova04_documents-service \
           -Dsonar.organization=mihaelagavrilova04 \
-          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.host.url=https://sonarcloud.io 
             
   deploy-to-k3d:
     needs: build-and-push
