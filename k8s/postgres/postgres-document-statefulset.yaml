@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-document
+  namespace: file-app
+spec:
+  serviceName: postgres-document-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-document
+  template:
+    metadata:
+      labels:
+        app: postgres-document
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "documentdb"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-document-secret
+                  key: password
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-document-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-document-service
+  namespace: file-app
+spec:
+  selector:
+    app: postgres-document
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP

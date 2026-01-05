@@ -1,0 +1,166 @@
+name: CI/CD Pipeline (Build, Push & Deploy)
+
+on:
+  workflow_dispatch:
+    
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'frontend-user/**'
+      - 'documents-service/**'
+      - '.github/workflows/full-cicd.yml'
+      - 'k8s/**' 
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'frontend-user/**'
+      - 'documents-service/**'
+      - '.github/workflows/full-cicd.yml'
+      - 'k8s/**' 
+env:
+  REGISTRY: ghcr.io
+  USERNAME: mihaelagavrilova04
+  FRONTEND_IMAGE_NAME: frontend-user
+  DOCUMENTS_IMAGE_NAME: documents-service
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Frontend Build
+        working-directory: ./frontend-user
+        run: chmod +x mvnw
+
+      - name: Build Frontend with Maven
+        working-directory: ./frontend-user
+        run: ./mvnw clean package
+
+      - name: Build Frontend Docker Image
+        run: docker build -t ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }} -f frontend-user/Dockerfile frontend-user/
+
+      - name: Setup Documents Service Build
+        working-directory: ./documents-service
+        run: chmod +x mvnw
+
+      - name: Build Documents Service with Maven
+        working-directory: ./documents-service
+        run: ./mvnw clean package
+
+      - name: Build Documents Docker Image
+        run: docker build -t ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }} -f documents-service/Dockerfile documents-service/
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: mihaelagavrilova04
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Docker Images
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }}
+          
+  sonarqube:
+    name: SonarQube Analysis
+    needs: build-and-push
+    runs-on: ubuntu-latest
+  
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: 21
+        distribution: 'temurin'
+
+    - name: Cache SonarQube packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+
+    - name: Cache Maven packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Analyze with SonarQube
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        cd frontend-user
+        mvn -B verify sonar:sonar \
+          -Dsonar.projectKey=mihaelagavrilova04_frontend-user \
+          -Dsonar.organization=mihaelagavrilova04 \
+          -Dsonar.host.url=https://sonarcloud.io
+
+        cd ../documents-service
+        mvn -B verify sonar:sonar \
+          -Dsonar.projectKey=mihaelagavrilova04_documents-service \
+          -Dsonar.organization=mihaelagavrilova04 \
+          -Dsonar.host.url=https://sonarcloud.io 
+            
+  deploy-to-k3d:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install k3d
+        run: |
+          curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+      - name: Create k3d Cluster
+        run: |
+          k3d cluster create spring-cluster \
+            --port 30080:8181@loadbalancer \
+            --port 30081:8182@loadbalancer
+
+      - name: Update Image Tags
+        env:
+          GIT_SHA: ${{ github.sha }}
+        run: |
+          sed -i "s|ghcr.io/mihaelagavrilova04/frontend-user:latest|ghcr.io/mihaelagavrilova04/frontend-user:$GIT_SHA|g" k8s/services/frontend-deployment.yaml
+          sed -i "s|ghcr.io/mihaelagavrilova04/documents-service:latest|ghcr.io/mihaelagavrilova04/documents-service:$GIT_SHA|g" k8s/services/documents-deployment.yaml
+
+      - name: Deploy Infrastructure
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/secrets/
+          kubectl apply -f k8s/storage/
+          kubectl apply -f k8s/postgres/
+          kubectl wait --for=condition=ready pod -l app=postgres-document --timeout=180s -n file-app
+          kubectl wait --for=condition=ready pod -l app=postgres-user --timeout=180s -n file-app
+          kubectl apply -f k8s/minio/
+          kubectl wait --for=condition=ready pod -l app=minio --timeout=120s -n file-app
+
+      - name: Deploy Applications
+        run: |
+          kubectl apply -f k8s/services/
+          sleep 30
+
+      - name: Verify Deployment
+        run: |
+          kubectl get pods,svc -n file-app
