@@ -80,46 +80,39 @@ jobs:
     runs-on: ubuntu-latest
   
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: 21
-        distribution: 'temurin'
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'temurin'
 
-    - name: Cache SonarQube packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
 
-    - name: Cache Maven packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
-    - name: Analyze with SonarQube
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        cd frontend-user
-        mvn -B verify sonar:sonar \
-          -Dsonar.projectKey=mihaelagavrilova04_frontend-user \
-          -Dsonar.organization=mihaelagavrilova04 \
-          -Dsonar.host.url=https://sonarcloud.io
-
-        cd ../documents-service
-        mvn -B verify sonar:sonar \
-          -Dsonar.projectKey=mihaelagavrilova04_documents-service \
-          -Dsonar.organization=mihaelagavrilova04 \
-          -Dsonar.host.url=https://sonarcloud.io 
-            
+      - name: Analyze Complete Project with SonarQube
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn -B clean verify sonar:sonar \
+            -Dsonar.projectKey=mihaelagavrilova04_DevOps \
+            -Dsonar.organization=mihaelagavrilova04 \
+            -Dsonar.host.url=https://sonarcloud.io 
+       
   deploy-to-k3d:
     needs: build-and-push
     runs-on: ubuntu-latest
