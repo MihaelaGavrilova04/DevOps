@@ -73,7 +73,13 @@ jobs:
         run: |
           docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}
           docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }}
-          
+
+          docker tag ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:latest
+          docker tag ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:latest
+    
+          docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:latest
+          docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:latest
+    
   sonarqube:
     name: SonarQube Analysis
     needs: build-and-push
