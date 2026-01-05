@@ -73,12 +73,18 @@ jobs:
         run: |
           docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }}
           docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }}
-          
+
+          docker tag ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:latest
+          docker tag ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:latest
+    
+          docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.FRONTEND_IMAGE_NAME }}:latest
+          docker push ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.DOCUMENTS_IMAGE_NAME }}:latest
+    
   sonarqube:
     name: SonarQube Analysis
     needs: build-and-push
     runs-on: ubuntu-latest
-  
+
     steps:
     - uses: actions/checkout@v4
       with:
@@ -104,22 +110,26 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
-    - name: Analyze with SonarQube
+    - name: Analyze Documents Service with SonarQube
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      working-directory: ./documents-service  
       run: |
-        cd frontend-user
-        mvn -B verify sonar:sonar \
-          -Dsonar.projectKey=mihaelagavrilova04_frontend-user \
+        mvn -B clean verify sonar:sonar \
+          -Dsonar.projectKey=mihaelagavrilova04_documents-service \
           -Dsonar.organization=mihaelagavrilova04 \
           -Dsonar.host.url=https://sonarcloud.io
 
-        cd ../documents-service
-        mvn -B verify sonar:sonar \
-          -Dsonar.projectKey=mihaelagavrilova04_documents-service \
+    - name: Analyze Frontend Service with SonarQube
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_USER }}
+      working-directory: ./frontend-user  
+      run: |
+        mvn -B clean verify sonar:sonar \
+          -Dsonar.projectKey=mihaelagavrilova04_frontend-user \
           -Dsonar.organization=mihaelagavrilova04 \
-          -Dsonar.host.url=https://sonarcloud.io 
-            
+          -Dsonar.host.url=https://sonarcloud.io
+       
   deploy-to-k3d:
     needs: build-and-push
     runs-on: ubuntu-latest
