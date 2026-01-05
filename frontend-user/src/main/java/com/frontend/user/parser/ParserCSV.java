@@ -12,9 +12,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 
+// used for local development with h2 db
+
 @Component
 public class ParserCSV implements Parser {
     private final UserRepository userRepository;
+    private static final int EXPECTED_LENGTH = 3;
 
     ParserCSV(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -23,13 +26,15 @@ public class ParserCSV implements Parser {
     //    Изпълнява се когато Spring създаде всички Bean-ова и тоест базата е ready
     @PostConstruct
     void populate() {
-//        за да работи като пакетирам в JAR:
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("users.csv").getInputStream()))) {
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new ClassPathResource("users.csv").getInputStream()))) {
             String line;
+
             while ((line = reader.readLine()) != null) {
                 String[] arr = line.split(",");
 
-                if (arr.length != 3) {
+                if (arr.length != EXPECTED_LENGTH) {
                     continue;
                 }
 
@@ -40,6 +45,7 @@ public class ParserCSV implements Parser {
                 user.setPrivatePersonalInfo(arr[2]);
                 userRepository.save(user);
             }
+
         } catch (FileNotFoundException e1) {
             throw new UncheckedIOException(e1);
         } catch (IOException e2) {

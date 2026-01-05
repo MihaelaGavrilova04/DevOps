@@ -20,7 +20,7 @@ public class MinioClientConfig {
     @Bean
     public MinioClient getMinioClient() {
         return MinioClient.builder().endpoint(endpoint)  // Ще чете от application.properties
-                .credentials(accessKey, secretKey)  // Ще чете от application.properties
+                .credentials(accessKey, secretKey)
                 .build();
     }
 }

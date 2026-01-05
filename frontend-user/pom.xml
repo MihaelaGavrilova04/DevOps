@@ -64,14 +64,12 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
-            <!-- Spring Boot управлява версията, но може да зададеш изрично, напр. 42.7.3 -->
         </dependency>
 
-        <!-- Flyway за Database Migrations (ВЕРСИЯТА Е КЛЮЧОВА) -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>10.15.0</version> <!-- Поправена версия -->
+            <version>10.15.0</version>
         </dependency>
 
         <dependency>
@@ -100,13 +98,11 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
-        <!-- Spring Core (за InputStreamSource и др.) -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
 
-        <!-- Тестове -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -139,7 +135,6 @@
 
     <build>
         <plugins>
-            <!-- Maven compiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -151,7 +146,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Spring Boot Maven plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -162,6 +156,40 @@
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>3.11.0.3922</version>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <propertyExpansion>config_loc=${project.basedir}</propertyExpansion>
+
+                    <failOnViolation>false</failOnViolation>
+                    <failsOnError>false</failsOnError>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.11</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>

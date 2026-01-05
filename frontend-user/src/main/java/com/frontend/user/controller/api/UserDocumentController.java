@@ -1,7 +1,7 @@
 package com.frontend.user.controller.api;
 
 import com.frontend.user.client.DocumentClient;
-import com.frontend.user.client.clientDTO.DocumentResponseDTO;
+import com.frontend.user.client.client.dto.DocumentResponseDTO;
 import com.frontend.user.validator.FileValidator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -55,12 +55,13 @@ public class UserDocumentController {
             byte[] content = client.download(userId, documentId);
             DocumentResponseDTO found = client.findById(userId, documentId);
 
-            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = \"" + found.originalFilename() + "\"").contentType(MediaType.parseMediaType(found.contentType())).body(content);
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename = \"" + found.originalFilename() + "\"")
+                    .contentType(MediaType.parseMediaType(found.contentType())).body(content);
         } catch (Exception e) {
             return ResponseEntity.notFound().build(); // 404
         }
     }
-
 
     @DeleteMapping("/delete/{documentId}")
     public ResponseEntity<String> delete(@PathVariable Long userId, @PathVariable Long documentId) {

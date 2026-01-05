@@ -7,7 +7,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MinioInitializer {
+
     private final MinioClient minioClient;
+    private static final int TIME_TO_SLEEP = 3000;
 
     public MinioInitializer(MinioClient minioClient) {
         this.minioClient = minioClient;
@@ -16,28 +18,23 @@ public class MinioInitializer {
     @EventListener(ApplicationReadyEvent.class)
     public void initializeMinio() {
         try {
-            System.out.println("🔧 Testing MinIO connection...");
-            Thread.sleep(3000); // по-кратка пауза
+            System.out.println("Testing MinIO connection...");
+            Thread.sleep(TIME_TO_SLEEP);
 
-            // ПРОСТ ТЕСТ - пробвайте дали може да извикате listBuckets
             minioClient.listBuckets();
-            System.out.println("✅ MinIO connection successful!");
+            System.out.println("MinIO connection successful!");
 
-            // Проверете и създайте bucket ако трябва
-            boolean bucketExists = minioClient.bucketExists(
-                    io.minio.BucketExistsArgs.builder().bucket("user-documents").build()
-            );
+            boolean bucketExists = minioClient
+                    .bucketExists(io.minio.BucketExistsArgs.builder().bucket("user-documents").build());
 
             if (!bucketExists) {
-                System.out.println("📦 Creating bucket: user-documents");
-                minioClient.makeBucket(
-                        io.minio.MakeBucketArgs.builder().bucket("user-documents").build()
-                );
+                System.out.println("Creating bucket: user-documents");
+                minioClient.makeBucket(io.minio.MakeBucketArgs.builder().bucket("user-documents").build());
             }
 
         } catch (Exception e) {
-            System.err.println("⚠️ MinIO connection issue: " + e.getMessage());
-            System.err.println("💡 But application continues to work!");
+            System.err.println("MinIO connection issue: " + e.getMessage());
+            System.err.println("But application continues to work!");
         }
     }
 }
