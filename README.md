@@ -1,4 +1,4 @@
-# BlushBox DevOps Project 🌸
+# BlushBox DevOps Project 
 
 ## Disclaimer
 
@@ -150,4 +150,3 @@ While built for learning purposes, the project uses real, industry-standard
 tools to provide practical, hands-on DevOps experience.
 
 Enjoy exploring BlushBox 🌸
-
