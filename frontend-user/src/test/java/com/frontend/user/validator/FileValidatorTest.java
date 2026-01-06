@@ -1,74 +1,76 @@
-//package com.frontend.user.validator;
-//
-//import org.junit.jupiter.api.Test;
-//import org.springframework.web.multipart.MultipartFile;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
-//
-//class FileValidatorTest {
-//
-//    @Test
-//    void validateFileContent_ValidFile() {
-//        FileValidator validator = new FileValidator();
-//        MultipartFile file = mock(MultipartFile.class);
-//
-//        when(file.isEmpty()).thenReturn(false);
-//        when(file.getOriginalFilename()).thenReturn("test.pdf");
-//        when(file.getSize()).thenReturn(1024L);
-//
-//        assertDoesNotThrow(() -> validator.validateFileContent(file));
-//    }
-//
-//    @Test
-//    void validateFileContent_EmptyFile() {
-//        FileValidator validator = new FileValidator();
-//        MultipartFile file = mock(MultipartFile.class);
-//
-//        when(file.isEmpty()).thenReturn(true);
-//
-//        Exception exception = assertThrows(RuntimeException.class,
-//                () -> validator.validateFileContent(file));
-//
-//        assertTrue(exception.getMessage().contains("empty"));
-//    }
-//
-//    @Test
-//    void validateFileContent_NullFile() {
-//        FileValidator validator = new FileValidator();
-//
-//        Exception exception = assertThrows(RuntimeException.class,
-//                () -> validator.validateFileContent(null));
-//
-//        assertTrue(exception.getMessage().contains("null"));
-//    }
-//
-//    @Test
-//    void validateFileContent_InvalidExtension() {
-//        FileValidator validator = new FileValidator();
-//        MultipartFile file = mock(MultipartFile.class);
-//
-//        when(file.isEmpty()).thenReturn(false);
-//        when(file.getOriginalFilename()).thenReturn("test.exe");
-//
-//        Exception exception = assertThrows(RuntimeException.class,
-//                () -> validator.validateFileContent(file));
-//
-//        assertTrue(exception.getMessage().contains("extension"));
-//    }
-//
-//    @Test
-//    void validateFileContent_FileTooLarge() {
-//        FileValidator validator = new FileValidator();
-//        MultipartFile file = mock(MultipartFile.class);
-//
-//        when(file.isEmpty()).thenReturn(false);
-//        when(file.getOriginalFilename()).thenReturn("test.pdf");
-//        when(file.getSize()).thenReturn(1024L * 1024 * 11); // 11MB
-//
-//        Exception exception = assertThrows(RuntimeException.class,
-//                () -> validator.validateFileContent(file));
-//
-//        assertTrue(exception.getMessage().contains("size"));
-//    }
-//}
+package com.frontend.user.validator;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockMultipartFile;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class FileValidatorTest {
+
+    private FileValidator fileValidator;
+
+    @BeforeEach
+    void setUp() {
+        fileValidator = new FileValidator();
+    }
+
+    @Test
+    void validateFileContent_validFile_doesNotThrow() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.pdf",
+                "application/pdf",
+                "content".getBytes()
+        );
+
+        assertDoesNotThrow(() -> fileValidator.validateFileContent(file));
+    }
+
+    @Test
+    void validateFileContent_nullFile_throwsException() {
+        assertThrows(IllegalArgumentException.class,
+                () -> fileValidator.validateFileContent(null));
+    }
+
+    @Test
+    void validateFileContent_emptyFile_throwsException() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.pdf",
+                "application/pdf",
+                new byte[0]
+        );
+
+        assertThrows(IllegalArgumentException.class,
+                () -> fileValidator.validateFileContent(file));
+    }
+
+    @Test
+    void validateFileContent_invalidExtension_throwsException() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.exe",
+                "application/octet-stream",
+                "content".getBytes()
+        );
+
+        assertThrows(IllegalArgumentException.class,
+                () -> fileValidator.validateFileContent(file));
+    }
+
+    @Test
+    void validateFileContent_tooLargeFile_throwsException() {
+        byte[] bigContent = new byte[11 * 1024 * 1024]; // 11 MB
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "big.pdf",
+                "application/pdf",
+                bigContent
+        );
+
+        assertThrows(IllegalArgumentException.class,
+                () -> fileValidator.validateFileContent(file));
+    }
+}
