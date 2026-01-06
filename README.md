@@ -1,4 +1,4 @@
-# BlushBox DevOps Project 
+# BlushBox DevOps Project
 
 ## Disclaimer
 
@@ -149,4 +149,4 @@ deploys consistently using Kubernetes.
 While built for learning purposes, the project uses real, industry-standard
 tools to provide practical, hands-on DevOps experience.
 
-Enjoy exploring BlushBox 🌸
+Enjoy exploring BlushBox
