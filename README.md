@@ -6,8 +6,6 @@ It is for educational purposes only and does not handle sensitive information or
 BlushBox is a simple, pink-themed educational project built with Spring Boot and Thymeleaf. 
 It demonstrates a basic microservice architecture where users can manage documents in a simulated environment.
 
----
-
 ## DevOps practices utilized
 
 ### Source Control & Collaboration
@@ -24,8 +22,6 @@ Two automated workflows in GitHub Actions:
 
 *   **`pr-validation.yml`:** The quality gate that runs automatically on every pull request.
 *   **`main-cicd.yml`:** The delivery pipeline that runs after code is successfully merged into `main`.
-
----
 
 ## Pipeline Details
 
@@ -48,8 +44,6 @@ Once code merges to `main`, the `main-cicd.yml` pipeline takes over:
 *   **Security Scan** – Docker images scanned with Trivy.
 *   **Push to Registry** – Images pushed to GitHub Container Registry.
 *   **Test Environment Deployment** – Infrastructure stack provisioned in a local k3d cluster for integration testing.
-
----
 
 ## Infrastructure & Deployment
 
@@ -89,8 +83,6 @@ Every component is defined in version-controlled YAML files within the `k8s/` di
 For document storage, we use MinIO with full Amazon S3 API compatibility.
 This means we develop locally but learn the same patterns used with major cloud storage services.
 
----
-
 ## Security & Maintenance
 
 ### Security Scanning
@@ -105,8 +97,6 @@ Sensitive data is stored securely in GitHub Secrets, never hard-coded in the rep
 ### Database Management
 
 Flyway manages schema changes through version-controlled SQL files, ensuring reliable database evolution.
-
----
 
 ## Summary
 
