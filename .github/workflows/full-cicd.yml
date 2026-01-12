@@ -133,44 +133,66 @@ jobs:
   deploy-to-k3d:
     needs: build-and-push
     runs-on: ubuntu-latest
-    
+  
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Install k3d
-        run: |
-          curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-
-      - name: Create k3d Cluster
-        run: |
-          k3d cluster create spring-cluster \
-            --port 30080:8181@loadbalancer \
-            --port 30081:8182@loadbalancer
-
-      - name: Update Image Tags
-        env:
-          GIT_SHA: ${{ github.sha }}
-        run: |
-          sed -i "s|ghcr.io/mihaelagavrilova04/frontend-user:latest|ghcr.io/mihaelagavrilova04/frontend-user:$GIT_SHA|g" k8s/services/frontend-deployment.yaml
-          sed -i "s|ghcr.io/mihaelagavrilova04/documents-service:latest|ghcr.io/mihaelagavrilova04/documents-service:$GIT_SHA|g" k8s/services/documents-deployment.yaml
-
-      - name: Deploy Infrastructure
-        run: |
-          kubectl apply -f k8s/namespace.yaml
-          kubectl apply -f k8s/secrets/
-          kubectl apply -f k8s/storage/
-          kubectl apply -f k8s/postgres/
-          kubectl wait --for=condition=ready pod -l app=postgres-document --timeout=180s -n file-app
-          kubectl wait --for=condition=ready pod -l app=postgres-user --timeout=180s -n file-app
-          kubectl apply -f k8s/minio/
-          kubectl wait --for=condition=ready pod -l app=minio --timeout=120s -n file-app
-
-      - name: Deploy Applications
-        run: |
-          kubectl apply -f k8s/services/
-          sleep 30
-
-      - name: Verify Deployment
-        run: |
-          kubectl get pods,svc -n file-app
+    - name: Install k3d
+      run: |
+        curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+        
+    - name: Create k3d Cluster
+      run: |
+        k3d cluster create spring-cluster \
+          --port 30080:8181@loadbalancer \
+          --port 30081:8182@loadbalancer
+        
+    - name: Update Image Tags
+      env:
+        GIT_SHA: ${{ github.sha }}
+      run: |
+        sed -i "s|ghcr.io/mihaelagavrilova04/frontend-user:latest|ghcr.io/mihaelagavrilova04/frontend-user:$GIT_SHA|g" k8s/services/frontend-deployment.yaml
+        sed -i "s|ghcr.io/mihaelagavrilova04/documents-service:latest|ghcr.io/mihaelagavrilova04/documents-service:$GIT_SHA|g" k8s/services/documents-deployment.yaml
+        
+    - name: Create Kubernetes Secrets from GitHub Secrets
+      run: |
+        kubectl apply -f k8s/namespace.yaml
+        
+        kubectl create secret generic minio-secret \
+          -n file-app \
+          --from-literal=accessKey=${{ secrets.MINIO_ACCESS_KEY }} \
+          --from-literal=secretKey=${{ secrets.MINIO_SECRET_KEY }} \
+          --dry-run=client -o yaml | kubectl apply -f -
+        
+        kubectl create secret generic postgres-document-secret \
+          -n file-app \
+          --from-literal=password=${{ secrets.POSTGRES_DOCUMENT_PASSWORD }} \
+          --dry-run=client -o yaml | kubectl apply -f -
+        
+        kubectl create secret generic postgres-user-secret \
+          -n file-app \
+          --from-literal=password=${{ secrets.POSTGRES_USER_PASSWORD }} \
+          --dry-run=client -o yaml | kubectl apply -f -
+        
+    - name: Deploy Storage and Databases
+      run: |
+        kubectl apply -f k8s/storage/
+        kubectl apply -f k8s/postgres/
+        
+        kubectl wait --for=condition=ready pod -l app=postgres-document --timeout=180s -n file-app
+        kubectl wait --for=condition=ready pod -l app=postgres-user --timeout=180s -n file-app
+        
+    - name: Deploy MinIO
+      run: |
+        kubectl apply -f k8s/minio/
+        kubectl wait --for=condition=ready pod -l app=minio --timeout=120s -n file-app
+        
+    - name: Deploy Applications
+      run: |
+        kubectl apply -f k8s/services/
+        sleep 30
+        
+    - name: Verify Deployment
+      run: |
+        kubectl get pods,svc -n file-app
