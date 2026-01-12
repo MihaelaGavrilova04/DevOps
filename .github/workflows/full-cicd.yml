@@ -10,13 +10,6 @@ on:
       - 'documents-service/**'
       - '.github/workflows/full-cicd.yml'
       - 'k8s/**' 
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - 'frontend-user/**'
-      - 'documents-service/**'
-      - '.github/workflows/full-cicd.yml'
-      - 'k8s/**' 
 env:
   REGISTRY: ghcr.io
   USERNAME: mihaelagavrilova04
