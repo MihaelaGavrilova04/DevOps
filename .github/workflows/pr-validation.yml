@@ -54,7 +54,7 @@ jobs:
         with:
           name: frontend-coverage
           path: frontend-user/target/site/jacoco/
-          retention-days: 7
+          retention-days: 10
 
   validate-documents-service:
     runs-on: ubuntu-latest
