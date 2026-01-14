@@ -13,7 +13,6 @@ spec:
       labels:
         app: frontend-user
     spec:
-      # ✅ ПРАВИЛНО: imagePullSecrets е ДИРЕКТНО в spec
       imagePullSecrets:
         - name: ghcr-secret
       containers:
@@ -46,3 +45,8 @@ spec:
     - port: 80
       targetPort: 8181
   type: LoadBalancer
+
+#  LoadBalancer използвам, защото Docker Desktop автоматично мапва външния порт 80 на localhost
+#  и мога директно да отворя браузъра без да търся номера на порта.
+#  Това ще улесни прехода към облака, защото кодът ще остане същият,
+#  а там ще получа истински балансиращ услуга с публичен IP адрес.
